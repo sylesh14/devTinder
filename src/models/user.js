@@ -49,6 +49,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "Javascript",
     },
+    photoUrl: {
+      type: String,
+    },
   },
   { timestamps: true },
 );

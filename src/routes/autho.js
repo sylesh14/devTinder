@@ -16,8 +16,11 @@ authRouter.post("/login", async (req, res) => {
     if (isValidPassword) {
       const token = await user.getJWT();
 
-      res.cookie("token", token);
-      res.send("logged in successfully");
+      res.cookie("token", token, {
+        httpOnly: true,
+        sameSite: "lax",
+      });
+      res.send(user);
     } else {
       throw new Error("Invalid Email Id or Password");
     }
@@ -40,8 +43,13 @@ authRouter.post("/signup", async (req, res) => {
       password: passwordHash,
     });
 
-    await user.save();
-    res.send("User Added");
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
+    res.json({ message: "User Added", data: savedUser });
   } catch (err) {
     res.status(500).send("Request Failed " + err);
   }

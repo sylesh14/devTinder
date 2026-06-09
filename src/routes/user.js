@@ -4,7 +4,7 @@ const { userAuth } = require("../middlewares/auth");
 const connectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-const VALUES_TO_SHOW = "firstName lastName age skills";
+const VALUES_TO_SHOW = "firstName lastName age skills photoUrl";
 
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   try {
@@ -15,7 +15,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
         toUserId: loggedInUser._id,
         status: "interested",
       })
-      .populate("fromUserId", ["firstName", "lastName"]);
+      .populate("fromUserId", ["firstName", "lastName", "photoUrl", "skills"]);
 
     res.json({
       message: "fetched data",
@@ -36,8 +36,8 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
           { toUserId: loggedInUser._id, status: "accepted" },
         ],
       })
-      .populate("fromUserId", ["firstName", "lastName"])
-      .populate("toUserId", ["firstName", "lastName"]);
+      .populate("fromUserId", ["firstName", "lastName", "photoUrl", "skills"])
+      .populate("toUserId", ["firstName", "lastName", "photoUrl", "skills"]);
 
     console.log(connectionReq);
 
@@ -66,7 +66,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     .find({
       $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
     })
-    .select("fromUserId toUserId");
+    .select("fromUserId toUserId skills photoUrl");
 
   const hideUsersFromFeed = new Set();
   connectionReq.forEach((req) => {
